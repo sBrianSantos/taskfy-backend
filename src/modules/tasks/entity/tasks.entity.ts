@@ -10,29 +10,38 @@ import {
   IsArray,
   IsDateString,
   IsEnum,
-  IsNumber,
+  IsNotEmpty,
   IsOptional,
   IsString,
+  MaxLength,
+  MinLength,
 } from 'class-validator';
 import { TasksPriority, TasksStatus } from '../enum/tasks.enum';
 
 @Entity('tasks')
 export class TasksEntity {
-  @IsNumber()
+  @IsString()
+  @IsNotEmpty()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @IsString()
-  @Column({ name: 'title', nullable: false })
+  @IsNotEmpty()
+  @MinLength(3)
+  @MaxLength(100)
+  @Column({ name: 'title', type: 'text', nullable: false })
   title: string;
 
   @IsString()
   @IsOptional()
-  @Column({ name: 'description', nullable: true })
+  @MinLength(10)
+  @MaxLength(2000)
+  @Column({ name: 'description', type: 'text', nullable: true })
   description: string;
 
   @Index()
   @IsEnum(TasksStatus)
+  @IsNotEmpty()
   @Column({
     name: 'status',
     type: 'enum',
@@ -44,6 +53,7 @@ export class TasksEntity {
 
   @Index()
   @IsEnum(TasksPriority)
+  @IsNotEmpty()
   @Column({
     name: 'priority',
     type: 'enum',
