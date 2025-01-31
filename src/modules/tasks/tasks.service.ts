@@ -12,48 +12,68 @@ export class TasksService {
     private readonly tasksRepository: Repository<TasksEntity>,
   ) {}
 
-  async createTask(createTaskDto: CreateTasksDto): Promise<TasksEntity> {
-    return await this.tasksRepository.save(createTaskDto);
+  async createTask(
+    userId: string,
+    createTasksDto: CreateTasksDto,
+  ): Promise<TasksEntity> {
+    const task = this.tasksRepository.create({
+      ...createTasksDto,
+      user: { id: userId },
+    });
+
+    return this.tasksRepository.save(task);
   }
 
-  async findAllTasks(): Promise<TasksEntity[]> {
-    return await this.tasksRepository.find();
+  async findAllTasks(userId: string): Promise<TasksEntity[]> {
+    return await this.tasksRepository.find({
+      where: { user: { id: userId } },
+    });
   }
 
-  async findOneTask(id: string): Promise<TasksEntity> {
-    const tasks = await this.tasksRepository.findOneBy({ id: id });
+  async findOneTask(userId: string, taskId: string): Promise<TasksEntity> {
+    const task = await this.tasksRepository.findOne({
+      where: { id: taskId, user: { id: userId } },
+    });
 
-    if (!tasks) {
+    if (!task) {
       throw new NotFoundException('Task not found');
     }
 
-    return tasks;
+    return task;
   }
 
   async updateTask(
-    id: string,
+    userId: string,
+    taskId: string,
     updateTasksDto: UpdateTasksDto,
   ): Promise<TasksEntity> {
-    const tasks = await this.tasksRepository.findOneBy({ id: id });
+    const task = await this.tasksRepository.findOne({
+      where: { id: taskId, user: { id: userId } },
+    });
 
-    if (!tasks) {
+    if (!task) {
       throw new NotFoundException('Task not found');
     }
 
-    await this.tasksRepository.update({ id: id }, updateTasksDto);
+    Object.assign(task, updateTasksDto);
 
-    return await this.tasksRepository.findOneBy({ id: id });
+    return await this.tasksRepository.save(task);
   }
 
-  async deleteTask(id: string) {
-    const tasks = await this.tasksRepository.findOneBy({ id: id });
+  async deleteTask(userId: string, taskId: string) {
+    const task = await this.tasksRepository.findOne({
+      where: { id: taskId, user: { id: userId } },
+    });
 
-    if (!tasks) {
+    if (!task) {
       throw new NotFoundException('Task not found');
     }
 
-    await this.tasksRepository.delete({ id: id });
+    await await this.tasksRepository.delete({
+      id: taskId,
+      user: { id: userId },
+    });
 
-    return { message: `Task with id ${id} was successfully deleted` };
+    return { message: `Task with id ${taskId} was successfully deleted` };
   }
 }

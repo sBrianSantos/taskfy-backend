@@ -5,10 +5,12 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { TasksEntity } from 'src/modules/tasks/entity/tasks.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -46,4 +48,7 @@ export class UsersEntity {
 
   @UpdateDateColumn({ name: 'update_at' })
   updateAt: Date;
+
+  @OneToMany(() => TasksEntity, (task) => task.user)
+  tasks: TasksEntity[];
 }

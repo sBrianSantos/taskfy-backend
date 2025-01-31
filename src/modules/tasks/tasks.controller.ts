@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
@@ -22,31 +23,33 @@ export class TasksController {
 
   @Post()
   async createTask(
+    @Req() req,
     @Body(new ValidationPipe()) createTasksDto: CreateTasksDto,
   ): Promise<TasksEntity> {
-    return this.tasksService.createTask(createTasksDto);
+    return this.tasksService.createTask(req.user.id, createTasksDto);
   }
 
   @Get()
-  async findAllTasks(): Promise<TasksEntity[]> {
-    return this.tasksService.findAllTasks();
+  async findAllTasks(@Req() req): Promise<TasksEntity[]> {
+    return this.tasksService.findAllTasks(req.user.id);
   }
 
   @Get(':id')
-  async findOneTask(@Param('id') id: string): Promise<TasksEntity> {
-    return this.tasksService.findOneTask(id);
+  async findOneTask(@Req() req, @Param('id') id: string): Promise<TasksEntity> {
+    return this.tasksService.findOneTask(req.user.id, id);
   }
 
   @Patch(':id')
   async updateTask(
+    @Req() req,
     @Param('id') id: string,
     @Body(new ValidationPipe()) updateTasksDto: UpdateTasksDto,
   ): Promise<TasksEntity> {
-    return this.tasksService.updateTask(id, updateTasksDto);
+    return this.tasksService.updateTask(req.user.id, id, updateTasksDto);
   }
 
   @Delete(':id')
-  async deleteTask(@Param('id') id: string): Promise<Object> {
-    return this.tasksService.deleteTask(id);
+  async deleteTask(@Req() req, @Param('id') id: string): Promise<Object> {
+    return this.tasksService.deleteTask(req.user.id, id);
   }
 }

@@ -3,6 +3,8 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -17,6 +19,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { TasksPriority, TasksStatus } from '../enum/tasks.enum';
+import { UsersEntity } from 'src/modules/users/entity/users.entity';
 
 @Entity('tasks')
 export class TasksEntity {
@@ -79,4 +82,8 @@ export class TasksEntity {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  @ManyToOne(() => UsersEntity, (user) => user.tasks)
+  @JoinColumn({ name: 'user_id' })
+  user: UsersEntity;
 }
