@@ -25,10 +25,18 @@ export class TasksService {
     return this.tasksRepository.save(task);
   }
 
-  async findAllTasks(userId: string): Promise<TasksEntity[]> {
-    return await this.tasksRepository.find({
+  async findAllTasks(
+    userId: string,
+    page: number,
+    limit: number,
+  ): Promise<{ tasks: TasksEntity[]; total: number }> {
+    const [tasks, total] = await this.tasksRepository.findAndCount({
       where: { user: { id: userId } },
+      skip: (page - 1) * limit,
+      take: limit,
     });
+
+    return { tasks, total };
   }
 
   async searchTasks(userId: string, title: string): Promise<TasksEntity[]> {

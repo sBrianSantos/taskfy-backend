@@ -35,8 +35,9 @@ export class TasksController {
   }
 
   @Get()
-  async findAllTasks(@Req() req): Promise<TasksEntity[]> {
-    return this.tasksService.findAllTasks(req.user.id);
+  async findAllTasks(@Req() req, @Query() listTasksDto: ListTasksDto) {
+    const { page, limit } = listTasksDto;
+    return this.tasksService.findAllTasks(req.user.id, page, limit);
   }
 
   @Get('search')

@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { Order, SortBy } from '../enum/tasks.enum';
 
@@ -15,11 +15,20 @@ export class ListTasksDto {
   })
   order?: Order;
 
-  // @IsOptional()
-  // @Transform(({ value }) => parseInt(value, 10))
-  // page?: number;
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Transform(({ value }) => (value ? parseInt(value, 10) : 1))
+  page?: number;
 
-  // @IsOptional()
-  // @Transform(({ value }) => parseInt(value, 10))
-  // limit?: number;
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Transform(({ value }) => (value ? parseInt(value, 10) : 10))
+  limit?: number;
+
+  @IsOptional()
+  @IsString()
+  @Transform(({ value }) => value?.toLowerCase())
+  search?: string;
 }
