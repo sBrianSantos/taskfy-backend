@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
   ValidationPipe,
@@ -32,6 +33,14 @@ export class TasksController {
   @Get()
   async findAllTasks(@Req() req): Promise<TasksEntity[]> {
     return this.tasksService.findAllTasks(req.user.id);
+  }
+
+  @Get('search')
+  async searchTasks(
+    @Req() req,
+    @Query('title') title: string,
+  ): Promise<TasksEntity[]> {
+    return this.tasksService.searchTasks(req.user.id, title);
   }
 
   @Get(':id')

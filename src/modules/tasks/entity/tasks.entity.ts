@@ -28,6 +28,7 @@ export class TasksEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Index()
   @IsString()
   @IsNotEmpty()
   @MinLength(3)
