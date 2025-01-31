@@ -1,6 +1,6 @@
-import { UsersEntity } from 'src/modules/users/entity/users.entity';
+import { UsersEntity } from '../entity/users.entity';
 
-export class LoginPayloadDto {
+export class ReturnUsersDto {
   id: string;
   username: string;
 

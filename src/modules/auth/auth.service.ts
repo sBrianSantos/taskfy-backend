@@ -5,6 +5,8 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
 import { ReturnLoginDto } from './dto/returnLogin.dto';
 import { LoginPayloadDto } from './dto/loginPayload.dto';
+import { ReturnUsersDto } from '../users/dto/returnUsers.dto';
+import { CreateUsersDto } from '../users/dto/createUsers.dto';
 
 @Injectable()
 export class AuthService {
@@ -21,17 +23,32 @@ export class AuthService {
 
     if (
       !user ||
-      (await this.passwordService.validatePassword(
-        loginDto.username,
+      !(await this.passwordService.validatePassword(
+        loginDto.password,
         user.password,
       ))
     ) {
       throw new NotFoundException(`Username or password invalid`);
     }
 
+    const payload = new LoginPayloadDto(user);
+    const accessToken = this.jwtService.sign({ ...payload });
+
     return {
-      acessToken: this.jwtService.sign({ ...new LoginPayloadDto(user) }),
-      user: user,
+      accessToken,
+      user: new ReturnUsersDto(user),
+    };
+  }
+
+  async signUp(createUsersDto: CreateUsersDto): Promise<ReturnLoginDto> {
+    const user = await this.usersService.createUser(createUsersDto);
+
+    const payload = new LoginPayloadDto(user);
+    const accessToken = this.jwtService.sign({ ...payload });
+
+    return {
+      accessToken,
+      user: new ReturnUsersDto(user),
     };
   }
 }

@@ -1,35 +1,20 @@
 import {
-  CanActivate,
   ExecutionContext,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { LoginPayloadDto } from 'src/modules/auth/dto/loginPayload.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
-export class RolesGuard implements CanActivate {
-  constructor(private readonly jwtService: JwtService) {}
+export class RolesGuard extends AuthGuard('jwt') {
+  canActivate(context: ExecutionContext) {
+    return super.canActivate(context);
+  }
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const { authorization } = context.switchToHttp().getRequest().headers;
-
-    if (!authorization) {
-      throw new UnauthorizedException('Authorization header not found');
+  handleRequest(err: any, user: any) {
+    if (err || !user) {
+      throw new UnauthorizedException('Acesso não autorizado');
     }
-
-    const loginPayload: LoginPayloadDto | undefined = await this.jwtService
-      .verifyAsync(authorization, {
-        secret: process.env.JWT_SECRET,
-      })
-      .catch(() => {
-        return undefined;
-      });
-
-    if (!loginPayload) {
-      return false;
-    }
-
-    return true;
+    return user;
   }
 }
