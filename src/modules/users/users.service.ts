@@ -44,7 +44,19 @@ export class UsersService {
         where: { id },
       })
       .catch(() => {
-        throw new NotFoundException('Username not found');
+        throw new NotFoundException('User not found');
+      });
+
+    return user;
+  }
+
+  async findOneByUsername(username: string): Promise<UsersEntity> {
+    const user = await this.usersRepository
+      .findOne({
+        where: { username },
+      })
+      .catch(() => {
+        throw new NotFoundException('User not found');
       });
 
     return user;

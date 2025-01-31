@@ -6,13 +6,16 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { TasksEntity } from './entity/tasks.entity';
 import { CreateTasksDto } from './dto/createTasks.dto';
 import { UpdateTasksDto } from './dto/updateTasks.dto';
+import { RolesGuard } from 'src/infra/guard/roles.guard';
 
+@UseGuards(RolesGuard)
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
