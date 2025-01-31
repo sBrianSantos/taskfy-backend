@@ -9,3 +9,14 @@ export enum TasksPriority {
   MEDIUM = 'medium',
   HIGH = 'high',
 }
+
+export enum SortBy {
+  STATUS = 'status',
+  PRIORITY = 'priority',
+  DUE_DATE = 'dueDate',
+}
+
+export enum Order {
+  ASC = 'ASC',
+  DESC = 'DESC',
+}

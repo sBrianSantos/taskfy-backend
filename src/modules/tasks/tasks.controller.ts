@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -9,6 +10,7 @@ import {
   Query,
   Req,
   UseGuards,
+  UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
@@ -16,6 +18,8 @@ import { TasksEntity } from './entity/tasks.entity';
 import { CreateTasksDto } from './dto/createTasks.dto';
 import { UpdateTasksDto } from './dto/updateTasks.dto';
 import { RolesGuard } from 'src/infra/guard/roles.guard';
+import { Order, SortBy } from './enum/tasks.enum';
+import { ListTasksDto } from './dto/listTasks.dto';
 
 @UseGuards(RolesGuard)
 @Controller('tasks')
@@ -41,6 +45,16 @@ export class TasksController {
     @Query('title') title: string,
   ): Promise<TasksEntity[]> {
     return this.tasksService.searchTasks(req.user.id, title);
+  }
+
+  @Get('sorted')
+  @UsePipes(ValidationPipe)
+  async getSortedTasks(
+    @Req() req,
+    @Query() listTasksDto: ListTasksDto,
+  ): Promise<TasksEntity[]> {
+    const { sortBy, order } = listTasksDto;
+    return this.tasksService.getSortedTasks(req.user.id, sortBy, order);
   }
 
   @Get(':id')
