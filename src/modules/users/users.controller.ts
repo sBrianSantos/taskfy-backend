@@ -1,16 +1,15 @@
-import { Body, Controller, Post, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUsersDto } from './dto/createUsers.dto';
 import { UsersEntity } from './entity/users.entity';
+import { RolesGuard } from 'src/infra/guard/roles.guard';
 
+@UseGuards(RolesGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  async createUser(
-    @Body(new ValidationPipe()) createUsersDto: CreateUsersDto,
-  ): Promise<UsersEntity> {
-    return this.usersService.createUser(createUsersDto);
+  @Get('profile')
+  async getProfile(@Req() req): Promise<UsersEntity> {
+    return this.usersService.findOneById(req.user.id);
   }
 }
