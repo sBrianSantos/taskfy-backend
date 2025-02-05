@@ -55,7 +55,22 @@ export class TasksController {
     @Query() listTasksDto: ListTasksDto,
   ): Promise<TasksEntity[]> {
     const { sortBy, order } = listTasksDto;
+
     return this.tasksService.getSortedTasks(req.user.id, sortBy, order);
+  }
+
+  @Get('filtered')
+  @UsePipes(ValidationPipe)
+  async getFilteredTasks(@Req() req, @Query() listTaskDto: ListTasksDto) {
+    const { sortBy, order, page, limit, search } = listTaskDto;
+    return this.tasksService.getFilteredTasks(
+      req.user.id,
+      sortBy,
+      order,
+      page,
+      limit,
+      search,
+    );
   }
 
   @Get(':id')

@@ -27,8 +27,8 @@ export class TasksService {
 
   async findAllTasks(
     userId: string,
-    page: number,
-    limit: number,
+    page: number = 1,
+    limit: number = 10,
   ): Promise<{ tasks: TasksEntity[]; total: number }> {
     const [tasks, total] = await this.tasksRepository.findAndCount({
       where: { user: { id: userId } },
@@ -39,16 +39,22 @@ export class TasksService {
     return { tasks, total };
   }
 
-  async searchTasks(userId: string, title: string): Promise<TasksEntity[]> {
+  async searchTasks(userId: string, title?: string): Promise<TasksEntity[]> {
+    if (title) {
+      return await this.tasksRepository.find({
+        where: { user: { id: userId }, title: ILike(`%${title}%`) },
+      });
+    }
+
     return await this.tasksRepository.find({
-      where: { user: { id: userId }, title: ILike(`%${title}%`) },
+      where: { user: { id: userId } },
     });
   }
 
   async getSortedTasks(
     userId: string,
-    sortBy: SortBy,
-    order: Order,
+    sortBy: SortBy = SortBy.PRIORITY,
+    order: Order = Order.ASC,
   ): Promise<TasksEntity[]> {
     const priorityOrder = {
       low: 1,
@@ -100,6 +106,76 @@ export class TasksService {
         order,
       )
       .getMany();
+  }
+
+  async getFilteredTasks(
+    userId: string,
+    sortBy: SortBy = SortBy.PRIORITY,
+    order: Order = Order.ASC,
+    page: number = 1,
+    limit: number = 10,
+    title?: string,
+  ): Promise<{ tasks: TasksEntity[]; total: number }> {
+    const priorityOrder = {
+      low: 1,
+      medium: 2,
+      high: 3,
+    };
+
+    const statusOrder = {
+      pending: 1,
+      in_progress: 2,
+      completed: 3,
+    };
+
+    const whereUser: any = { user: { id: userId } };
+
+    if (title) {
+      whereUser.title = ILike(`%${title}%`);
+    }
+
+    const [tasks, total] = await this.tasksRepository
+      .createQueryBuilder('task')
+      .where(whereUser)
+      .addSelect(
+        `CASE task.priority 
+        WHEN 'low' THEN :low 
+        WHEN 'medium' THEN :medium 
+        WHEN 'high' THEN :high 
+        ELSE 0 
+       END`,
+        'priority_order',
+      )
+      .addSelect(
+        `CASE task.status 
+        WHEN 'pending' THEN :pending 
+        WHEN 'in_progress' THEN :in_progress 
+        WHEN 'completed' THEN :completed 
+        ELSE 0 
+       END`,
+        'status_order',
+      )
+      .setParameters({
+        low: priorityOrder.low,
+        medium: priorityOrder.medium,
+        high: priorityOrder.high,
+        pending: statusOrder.pending,
+        in_progress: statusOrder.in_progress,
+        completed: statusOrder.completed,
+      })
+      .orderBy(
+        sortBy === SortBy.PRIORITY
+          ? 'priority_order'
+          : sortBy === SortBy.STATUS
+            ? 'status_order'
+            : `task.${sortBy}`,
+        order,
+      )
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    return { tasks, total };
   }
 
   async findOneTask(userId: string, taskId: string): Promise<TasksEntity> {
