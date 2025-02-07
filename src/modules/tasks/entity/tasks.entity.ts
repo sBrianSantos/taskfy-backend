@@ -84,7 +84,7 @@ export class TasksEntity {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @ManyToOne(() => UsersEntity, (user) => user.tasks)
+  @ManyToOne(() => UsersEntity, (user) => user.tasks, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: UsersEntity;
 }

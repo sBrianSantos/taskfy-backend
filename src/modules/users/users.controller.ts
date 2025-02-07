@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Patch,
   Post,
@@ -13,6 +14,7 @@ import { UsersEntity } from './entity/users.entity';
 import { RolesGuard } from 'src/infra/guard/roles.guard';
 import { UpdateUsersDto } from './dto/updateUsers.dto';
 import { ChangePasswordDto } from './dto/changePassword.dto';
+import { DeleteUsersDto } from './dto/deleteUsers.dto';
 
 @UseGuards(RolesGuard)
 @Controller('users')
@@ -38,5 +40,13 @@ export class UsersController {
     @Body(new ValidationPipe()) changePasswordDto: ChangePasswordDto,
   ): Promise<Object> {
     return this.usersService.changePassword(req.user.id, changePasswordDto);
+  }
+
+  @Delete('delete')
+  async DeleteUsersDto(
+    @Req() req,
+    @Body(new ValidationPipe()) deleteUsersDto: DeleteUsersDto,
+  ): Promise<Object> {
+    return this.usersService.deleteUser(req.user.id, deleteUsersDto);
   }
 }

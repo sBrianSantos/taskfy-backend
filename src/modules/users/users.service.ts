@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -12,6 +11,7 @@ import { CreateUsersDto } from './dto/createUsers.dto';
 import { PasswordService } from 'src/service/password.service';
 import { UpdateUsersDto } from './dto/updateUsers.dto';
 import { ChangePasswordDto } from './dto/changePassword.dto';
+import { DeleteUsersDto } from './dto/deleteUsers.dto';
 
 @Injectable()
 export class UsersService {
@@ -74,7 +74,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException(`User not found`);
+      throw new NotFoundException('User not found');
     }
 
     if (updateUsersDto.username) {
@@ -101,7 +101,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException(`User not found`);
+      throw new NotFoundException('User not found');
     }
 
     const { newPassword, currentPassword } = changePasswordDto;
@@ -120,5 +120,31 @@ export class UsersService {
     await this.usersRepository.save(user);
 
     return { message: 'Your password has been changed successfully' };
+  }
+
+  async deleteUser(
+    userId: string,
+    deleteUsersDto: DeleteUsersDto,
+  ): Promise<Object> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const isPasswordValid = await this.passwordService.validatePassword(
+      deleteUsersDto.confirmationPassword,
+      user.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    await this.usersRepository.remove(user);
+
+    return { message: 'Account deactivated successfully.' };
   }
 }
