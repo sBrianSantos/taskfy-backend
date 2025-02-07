@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UsersEntity } from './entity/users.entity';
 import { Repository } from 'typeorm';
@@ -10,6 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUsersDto } from './dto/createUsers.dto';
 import { PasswordService } from 'src/service/password.service';
 import { UpdateUsersDto } from './dto/updateUsers.dto';
+import { ChangePasswordDto } from './dto/changePassword.dto';
 
 @Injectable()
 export class UsersService {
@@ -31,7 +33,7 @@ export class UsersService {
       })
       .catch((error) => {
         if (error.code == '23505') {
-          throw new ConflictException('Username already registered');
+          throw new ConflictException('Username is already taken');
         }
         throw error;
       });
@@ -88,5 +90,35 @@ export class UsersService {
     }
 
     return await this.usersRepository.save(user);
+  }
+
+  async changePassword(
+    userId: string,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<Object> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User not found`);
+    }
+
+    const { newPassword, currentPassword } = changePasswordDto;
+
+    const isPasswordValid = await this.passwordService.validatePassword(
+      currentPassword,
+      user.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    user.password = await this.passwordService.generateHash(newPassword);
+
+    await this.usersRepository.save(user);
+
+    return { message: 'Your password has been changed successfully' };
   }
 }

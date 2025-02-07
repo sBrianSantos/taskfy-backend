@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Patch,
+  Post,
   Req,
   UseGuards,
   ValidationPipe,
@@ -11,6 +12,7 @@ import { UsersService } from './users.service';
 import { UsersEntity } from './entity/users.entity';
 import { RolesGuard } from 'src/infra/guard/roles.guard';
 import { UpdateUsersDto } from './dto/updateUsers.dto';
+import { ChangePasswordDto } from './dto/changePassword.dto';
 
 @UseGuards(RolesGuard)
 @Controller('users')
@@ -28,5 +30,13 @@ export class UsersController {
     @Body(new ValidationPipe()) updateUsersDto: UpdateUsersDto,
   ): Promise<UsersEntity> {
     return this.usersService.updateProfile(req.user.id, updateUsersDto);
+  }
+
+  @Post('change-password')
+  async changePassword(
+    @Req() req,
+    @Body(new ValidationPipe()) changePasswordDto: ChangePasswordDto,
+  ): Promise<Object> {
+    return this.usersService.changePassword(req.user.id, changePasswordDto);
   }
 }
