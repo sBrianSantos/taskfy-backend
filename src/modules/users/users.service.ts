@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUsersDto } from './dto/createUsers.dto';
 import { PasswordService } from 'src/service/password.service';
+import { UpdateUsersDto } from './dto/updateUsers.dto';
 
 @Injectable()
 export class UsersService {
@@ -60,5 +61,32 @@ export class UsersService {
       });
 
     return user;
+  }
+
+  async updateProfile(
+    userId: string,
+    updateUsersDto: UpdateUsersDto,
+  ): Promise<UsersEntity> {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User not found`);
+    }
+
+    if (updateUsersDto.username) {
+      const existingUser = await this.usersRepository.findOne({
+        where: { username: updateUsersDto.username },
+      });
+
+      if (existingUser && existingUser.id !== userId) {
+        throw new ConflictException('Username is already taken');
+      }
+
+      user.username = updateUsersDto.username;
+    }
+
+    return await this.usersRepository.save(user);
   }
 }

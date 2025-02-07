@@ -35,12 +35,14 @@ export class TasksController {
   }
 
   @Get()
+  @UsePipes(ValidationPipe)
   async findAllTasks(@Req() req, @Query() listTasksDto: ListTasksDto) {
     const { page, limit } = listTasksDto;
     return this.tasksService.findAllTasks(req.user.id, page, limit);
   }
 
   @Get('search')
+  @UsePipes(ValidationPipe)
   async searchTasks(
     @Req() req,
     @Query('title') title: string,
