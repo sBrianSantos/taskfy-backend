@@ -47,6 +47,8 @@ export class UsersController {
     @Req() req,
     @Body(new ValidationPipe()) deleteUsersDto: DeleteUsersDto,
   ): Promise<Object> {
-    return this.usersService.deleteUser(req.user.id, deleteUsersDto);
+    const token = req.headers.authorization.replace('Bearer ', '');
+
+    return this.usersService.deleteUser(req.user.id, deleteUsersDto, token);
   }
 }

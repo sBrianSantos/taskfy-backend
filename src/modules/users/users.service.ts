@@ -12,6 +12,7 @@ import { PasswordService } from 'src/service/password.service';
 import { UpdateUsersDto } from './dto/updateUsers.dto';
 import { ChangePasswordDto } from './dto/changePassword.dto';
 import { DeleteUsersDto } from './dto/deleteUsers.dto';
+import { TokenBlacklistService } from 'src/service/tokenBlacklist.service';
 
 @Injectable()
 export class UsersService {
@@ -19,6 +20,7 @@ export class UsersService {
     @InjectRepository(UsersEntity)
     private readonly usersRepository: Repository<UsersEntity>,
     private readonly passwordService: PasswordService,
+    private readonly tokenBlacklistService: TokenBlacklistService,
   ) {}
 
   async createUser(createUsersDto: CreateUsersDto): Promise<UsersEntity> {
@@ -125,6 +127,7 @@ export class UsersService {
   async deleteUser(
     userId: string,
     deleteUsersDto: DeleteUsersDto,
+    token: string,
   ): Promise<Object> {
     const user = await this.usersRepository.findOne({
       where: { id: userId },
@@ -143,6 +146,7 @@ export class UsersService {
       throw new UnauthorizedException('Current password is incorrect');
     }
 
+    this.tokenBlacklistService.add(token, 3600);
     await this.usersRepository.remove(user);
 
     return { message: 'Account deactivated successfully.' };

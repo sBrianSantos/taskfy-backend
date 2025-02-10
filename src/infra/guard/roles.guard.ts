@@ -13,7 +13,7 @@ export class RolesGuard extends AuthGuard('jwt') {
 
   handleRequest(err: any, user: any) {
     if (err || !user) {
-      throw new UnauthorizedException('Acesso não autorizado');
+      throw new UnauthorizedException('Unauthorized access');
     }
     return user;
   }

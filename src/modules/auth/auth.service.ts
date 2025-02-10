@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { PasswordService } from 'src/service/password.service';
 import { JwtService } from '@nestjs/jwt';
@@ -7,6 +11,7 @@ import { ReturnLoginDto } from './dto/returnLogin.dto';
 import { LoginPayloadDto } from './dto/loginPayload.dto';
 import { ReturnUsersDto } from '../users/dto/returnUsers.dto';
 import { CreateUsersDto } from '../users/dto/createUsers.dto';
+import { TokenBlacklistService } from 'src/service/tokenBlacklist.service';
 
 @Injectable()
 export class AuthService {
@@ -14,6 +19,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly passwordService: PasswordService,
     private readonly jwtService: JwtService,
+    private readonly tokenBlacklistService: TokenBlacklistService,
   ) {}
 
   async login(loginDto: LoginDto): Promise<ReturnLoginDto> {
@@ -50,5 +56,21 @@ export class AuthService {
       accessToken,
       user: new ReturnUsersDto(user),
     };
+  }
+
+  logout(authHeader: string): { message: string } {
+    if (!authHeader) {
+      throw new UnauthorizedException('Authorization header not found');
+    }
+
+    const parts = authHeader.split(' ');
+    if (parts.length !== 2 || parts[0] !== 'Bearer') {
+      throw new UnauthorizedException('Invalid authorization header format');
+    }
+
+    const token = parts[1];
+    this.tokenBlacklistService.add(token, 3600);
+
+    return { message: 'Logout completed successfully' };
   }
 }
