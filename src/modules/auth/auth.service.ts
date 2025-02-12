@@ -1,4 +1,5 @@
 import {
+  HttpStatus,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -9,7 +10,6 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
 import { ReturnLoginDto } from './dto/returnLogin.dto';
 import { LoginPayloadDto } from './dto/loginPayload.dto';
-import { ReturnUsersDto } from '../users/dto/returnUsers.dto';
 import { CreateUsersDto } from '../users/dto/createUsers.dto';
 import { TokenBlacklistService } from 'src/service/tokenBlacklist.service';
 
@@ -34,7 +34,7 @@ export class AuthService {
         user.password,
       ))
     ) {
-      throw new NotFoundException(`Username or password invalid`);
+      throw new NotFoundException('Username or password invalid');
     }
 
     const payload = new LoginPayloadDto(user);
@@ -42,7 +42,6 @@ export class AuthService {
 
     return {
       accessToken,
-      user: new ReturnUsersDto(user),
     };
   }
 
@@ -54,7 +53,6 @@ export class AuthService {
 
     return {
       accessToken,
-      user: new ReturnUsersDto(user),
     };
   }
 
