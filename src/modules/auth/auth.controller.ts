@@ -34,6 +34,7 @@ export class AuthController {
   @ApiBody({
     type: LoginDto,
     description: 'User login data',
+    required: true,
   })
   @ApiResponse({
     status: 200,
@@ -42,15 +43,20 @@ export class AuthController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Username or password invalid',
+    description: 'Username or password invalid format or length',
     example: {
       message: [
         'Use only letters, numbers, ".", "-" or "_"',
+        'username must be shorter than or equal to 20 characters',
         'username must be longer than or equal to 3 characters',
+        'username must be a string',
         'username should not be empty',
         'Password must begin with an uppercase letter and include at least one lowercase letter, number and special characters',
+        'password must be shorter than or equal to 100 characters',
         'password must be longer than or equal to 12 characters',
+        'password must be a string',
         'password should not be empty',
+        'Unexpected token \',\', ..."sername": ,\r\n    "pa"... is not valid JSON',
       ],
       error: 'Bad Request',
       statusCode: 400,
@@ -83,6 +89,7 @@ export class AuthController {
   @ApiBody({
     type: CreateUsersDto,
     description: 'User registration data',
+    required: true,
   })
   @ApiResponse({
     status: 201,
@@ -91,15 +98,20 @@ export class AuthController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Username or password invalid',
+    description: 'Username or password invalid format or length',
     example: {
       message: [
         'Use only letters, numbers, ".", "-" or "_"',
+        'username must be shorter than or equal to 20 characters',
         'username must be longer than or equal to 3 characters',
+        'username must be a string',
         'username should not be empty',
         'Password must begin with an uppercase letter and include at least one lowercase letter, number and special characters',
+        'password must be shorter than or equal to 100 characters',
         'password must be longer than or equal to 12 characters',
+        'password must be a string',
         'password should not be empty',
+        'Unexpected token \',\', ..."sername": ,\r\n    "pa"... is not valid JSON',
       ],
       error: 'Bad Request',
       statusCode: 400,
@@ -144,7 +156,7 @@ export class AuthController {
   @ApiResponse({
     status: 401,
     description:
-      'Invalid authorization header format or authorization header not found',
+      'Invalid authorization header format or Authorization header not found',
     example: {
       message:
         'Invalid authorization header format or Authorization header not found',

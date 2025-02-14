@@ -13,6 +13,7 @@ import { UpdateUsersDto } from './dto/updateUsers.dto';
 import { ChangePasswordDto } from './dto/changePassword.dto';
 import { DeleteUsersDto } from './dto/deleteUsers.dto';
 import { TokenBlacklistService } from 'src/service/tokenBlacklist.service';
+import { ReturnUsersDto } from './dto/returnUsers.dto';
 
 @Injectable()
 export class UsersService {
@@ -23,7 +24,7 @@ export class UsersService {
     private readonly tokenBlacklistService: TokenBlacklistService,
   ) {}
 
-  async createUser(createUsersDto: CreateUsersDto): Promise<UsersEntity> {
+  async createUser(createUsersDto: CreateUsersDto): Promise<ReturnUsersDto> {
     const hash = await this.passwordService.generateHash(
       createUsersDto.password,
     );
@@ -40,10 +41,10 @@ export class UsersService {
         throw error;
       });
 
-    return user;
+    return new ReturnUsersDto(user);
   }
 
-  async findOneById(id: string): Promise<UsersEntity> {
+  async findOneById(id: string): Promise<ReturnUsersDto> {
     const user = await this.usersRepository
       .findOne({
         where: { id },
@@ -52,7 +53,7 @@ export class UsersService {
         throw new NotFoundException('User not found');
       });
 
-    return user;
+    return new ReturnUsersDto(user);
   }
 
   async findOneByUsername(username: string): Promise<UsersEntity> {
@@ -70,7 +71,7 @@ export class UsersService {
   async updateProfile(
     userId: string,
     updateUsersDto: UpdateUsersDto,
-  ): Promise<UsersEntity> {
+  ): Promise<ReturnUsersDto> {
     const user = await this.usersRepository.findOne({
       where: { id: userId },
     });
@@ -91,7 +92,9 @@ export class UsersService {
       user.username = updateUsersDto.username;
     }
 
-    return await this.usersRepository.save(user);
+    await this.usersRepository.save(user);
+
+    return new ReturnUsersDto(user);
   }
 
   async changePassword(
@@ -149,6 +152,6 @@ export class UsersService {
     this.tokenBlacklistService.add(token, 3600);
     await this.usersRepository.remove(user);
 
-    return { message: 'Account deactivated successfully.' };
+    return { message: 'Account deleted successfully.' };
   }
 }
