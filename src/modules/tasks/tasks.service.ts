@@ -5,6 +5,7 @@ import { TasksEntity } from './entity/tasks.entity';
 import { CreateTasksDto } from './dto/createTasks.dto';
 import { UpdateTasksDto } from './dto/updateTasks.dto';
 import { Order, SortBy } from './enum/tasks.enum';
+import { ReturnTasksDto } from './dto/returnTasks.dto';
 
 @Injectable()
 export class TasksService {
@@ -16,46 +17,53 @@ export class TasksService {
   async createTask(
     userId: string,
     createTasksDto: CreateTasksDto,
-  ): Promise<TasksEntity> {
+  ): Promise<ReturnTasksDto> {
     const task = this.tasksRepository.create({
       ...createTasksDto,
       user: { id: userId },
     });
 
-    return this.tasksRepository.save(task);
+    await this.tasksRepository.save(task);
+
+    return new ReturnTasksDto(task);
   }
 
   async findAllTasks(
     userId: string,
     page: number = 1,
     limit: number = 10,
-  ): Promise<{ tasks: TasksEntity[]; total: number }> {
+  ): Promise<{ tasks: ReturnTasksDto[]; total: number }> {
     const [tasks, total] = await this.tasksRepository.findAndCount({
       where: { user: { id: userId } },
       skip: (page - 1) * limit,
       take: limit,
     });
 
-    return { tasks, total };
+    const returnTasks = tasks.map((task) => new ReturnTasksDto(task));
+    return { tasks: returnTasks, total };
   }
 
-  async searchTasks(userId: string, title?: string): Promise<TasksEntity[]> {
+  async searchTasks(userId: string, title?: string): Promise<ReturnTasksDto[]> {
     if (title) {
-      return await this.tasksRepository.find({
+      const tasks = await this.tasksRepository.find({
         where: { user: { id: userId }, title: ILike(`%${title}%`) },
       });
+
+      return tasks.map((task) => new ReturnTasksDto(task));
     }
 
-    return await this.tasksRepository.find({
+    const tasks = await this.tasksRepository.find({
       where: { user: { id: userId } },
     });
+
+    return tasks.map((task) => new ReturnTasksDto(task));
   }
 
   async getSortedTasks(
     userId: string,
     sortBy: SortBy = SortBy.PRIORITY,
     order: Order = Order.ASC,
-  ): Promise<TasksEntity[]> {
+  ): Promise<ReturnTasksDto[]> {
     const priorityOrder = {
       low: 1,
       medium: 2,
@@ -68,7 +76,7 @@ export class TasksService {
       completed: 3,
     };
 
-    return this.tasksRepository
+    const tasks = await this.tasksRepository
       .createQueryBuilder('task')
       .where('task.user_id = :userId', { userId })
       .addSelect(
@@ -106,6 +114,8 @@ export class TasksService {
         order,
       )
       .getMany();
+
+    return tasks.map((task) => new ReturnTasksDto(task));
   }
 
   async getFilteredTasks(
@@ -178,7 +188,7 @@ export class TasksService {
     return { tasks, total };
   }
 
-  async findOneTask(userId: string, taskId: string): Promise<TasksEntity> {
+  async findOneTask(userId: string, taskId: string): Promise<ReturnTasksDto> {
     const task = await this.tasksRepository.findOne({
       where: { id: taskId, user: { id: userId } },
     });
@@ -187,14 +197,14 @@ export class TasksService {
       throw new NotFoundException('Task not found');
     }
 
-    return task;
+    return new ReturnTasksDto(task);
   }
 
   async updateTask(
     userId: string,
     taskId: string,
     updateTasksDto: UpdateTasksDto,
-  ): Promise<TasksEntity> {
+  ): Promise<ReturnTasksDto> {
     const task = await this.tasksRepository.findOne({
       where: { id: taskId, user: { id: userId } },
     });
@@ -204,8 +214,9 @@ export class TasksService {
     }
 
     Object.assign(task, updateTasksDto);
+    await this.tasksRepository.save(task);
 
-    return await this.tasksRepository.save(task);
+    return new ReturnTasksDto(task);
   }
 
   async deleteTask(userId: string, taskId: string) {

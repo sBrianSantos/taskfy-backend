@@ -1,5 +1,12 @@
-import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
-import { Transform } from 'class-transformer';
+import {
+  IsEnum,
+  IsNumber,
+  IsNumberString,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
+import { Transform, Type } from 'class-transformer';
 import { Order, SortBy } from '../enum/tasks.enum';
 
 export class ListTasksDto {
@@ -16,15 +23,15 @@ export class ListTasksDto {
   order?: Order;
 
   @IsOptional()
-  @IsInt()
+  @IsNumberString()
   @Min(1)
-  @Transform(({ value }) => (value ? parseInt(value, 10) : 1))
+  @Type(() => Number)
   page?: number;
 
   @IsOptional()
-  @IsInt()
+  @IsNumber({ maxDecimalPlaces: 0 })
   @Min(1)
-  @Transform(({ value }) => (value ? parseInt(value, 10) : 10))
+  @Type(() => Number)
   limit?: number;
 
   @IsOptional()
