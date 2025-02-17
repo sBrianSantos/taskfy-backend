@@ -13,6 +13,8 @@ export class LoginDto {
     type: String,
     required: true,
     example: 'brian_s',
+    minLength: 3,
+    maxLength: 20,
   })
   @IsString()
   @IsNotEmpty()
@@ -28,6 +30,8 @@ export class LoginDto {
     type: String,
     required: true,
     example: 'P@ssw0rd1234',
+    minLength: 12,
+    maxLength: 100,
   })
   @IsString()
   @IsNotEmpty()
