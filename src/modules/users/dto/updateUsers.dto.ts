@@ -13,6 +13,8 @@ export class UpdateUsersDto {
     type: String,
     required: true,
     example: 'brian_s',
+    minLength: 3,
+    maxLength: 20,
   })
   @IsString()
   @IsOptional()

@@ -13,6 +13,8 @@ export class ChangePasswordDto {
     type: String,
     required: true,
     example: 'P@ssw0rd4321',
+    minLength: 12,
+    maxLength: 100,
   })
   @IsString()
   @IsNotEmpty()
