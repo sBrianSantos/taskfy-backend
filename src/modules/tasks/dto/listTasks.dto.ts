@@ -23,7 +23,7 @@ export class ListTasksDto {
   order?: Order;
 
   @IsOptional()
-  @IsNumberString()
+  @IsNumber({ maxDecimalPlaces: 0 })
   @Min(1)
   @Type(() => Number)
   page?: number;
