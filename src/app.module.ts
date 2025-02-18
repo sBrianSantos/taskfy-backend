@@ -9,8 +9,12 @@ import { JwtModule } from '@nestjs/jwt';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.env.development.local',
       isGlobal: true,
+      ignoreEnvFile: process.env.NODE_ENV === 'production',
+      envFilePath:
+        process.env.NODE_ENV === 'production'
+          ? undefined
+          : '.env.development.local',
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
