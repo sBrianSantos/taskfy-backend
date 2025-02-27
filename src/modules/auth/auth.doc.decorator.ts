@@ -170,7 +170,8 @@ export const ValidateTokenDoc = () =>
     ...[
       ApiOperation({
         summary: 'Validate Token',
-        description: 'Endpoint for validate access token is valid.',
+        description:
+          'Endpoint for validate access token is valid. The Authorization Bearer of the request must contain the Access Token.',
         operationId: 'validateToken',
         deprecated: false,
       }),
@@ -183,11 +184,24 @@ export const ValidateTokenDoc = () =>
       }),
       ApiResponse({
         status: 401,
-        description: 'Unauthorized access',
-        example: {
-          message: 'Unauthorized access',
-          error: 'Unauthorized',
-          statusCode: 401,
+        description: 'Invalid authorization header format',
+        examples: {
+          InvalidAuthorizationHeader: {
+            summary: 'Invalid authorization header format',
+            value: {
+              message: 'Invalid authorization header format',
+              error: 'Unauthorized',
+              statusCode: 401,
+            },
+          },
+          InvalidOrExpiresToken: {
+            summary: 'Invalid or expired token',
+            value: {
+              message: 'Invalid or expired token',
+              error: 'Unauthorized',
+              statusCode: 401,
+            },
+          },
         },
       }),
     ],

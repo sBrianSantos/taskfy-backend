@@ -70,4 +70,18 @@ export class AuthService {
 
     return { message: 'Logout completed successfully' };
   }
+
+  async validateToken(authHeader: string): Promise<{ valid: boolean }> {
+    if (!authHeader) {
+      throw new UnauthorizedException('Invalid authorization header format');
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    try {
+      this.jwtService.verify(token);
+      return { valid: true };
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
+  }
 }

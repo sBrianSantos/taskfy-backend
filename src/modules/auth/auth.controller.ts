@@ -52,10 +52,11 @@ export class AuthController {
   }
 
   @ValidateTokenDoc()
-  @UseGuards(RolesGuard)
   @HttpCode(200)
   @Post('validate-token')
-  async validateToken() {
-    return { valid: true };
+  async validateToken(@Req() req) {
+    const authHeader = req.headers.authorization;
+
+    return this.authService.validateToken(authHeader);
   }
 }

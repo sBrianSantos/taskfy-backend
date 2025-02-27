@@ -27,12 +27,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     if (this.tokenBlacklistService.isBlacklisted(token)) {
       throw new UnauthorizedException(
-        'Token inválido (logout ou usuário deletado)',
+        'Invalid token (logged out or user deleted)',
       );
     }
 
     if (!user) {
-      throw new UnauthorizedException('Usuário não encontrado ou inativo');
+      throw new UnauthorizedException('User not found or inactive');
     }
 
     return user;
