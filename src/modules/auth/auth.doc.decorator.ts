@@ -164,3 +164,31 @@ export const LogoutDoc = () =>
       }),
     ],
   );
+
+export const ValidateTokenDoc = () =>
+  applyDecorators(
+    ...[
+      ApiOperation({
+        summary: 'Validate Token',
+        description: 'Endpoint for validate access token is valid.',
+        operationId: 'validateToken',
+        deprecated: false,
+      }),
+      ApiResponse({
+        status: 200,
+        description: 'Token valid',
+        example: {
+          valid: true,
+        },
+      }),
+      ApiResponse({
+        status: 401,
+        description: 'Unauthorized access',
+        example: {
+          message: 'Unauthorized access',
+          error: 'Unauthorized',
+          statusCode: 401,
+        },
+      }),
+    ],
+  );

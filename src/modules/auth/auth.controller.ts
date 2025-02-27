@@ -4,6 +4,7 @@ import {
   HttpCode,
   Post,
   Req,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -11,7 +12,13 @@ import { LoginDto } from './dto/login.dto';
 import { ReturnLoginDto } from './dto/returnLogin.dto';
 import { CreateUsersDto } from '../users/dto/createUsers.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { LoginDoc, LogoutDoc, SignUpDoc } from './auth.doc.decorator';
+import {
+  LoginDoc,
+  LogoutDoc,
+  SignUpDoc,
+  ValidateTokenDoc,
+} from './auth.doc.decorator';
+import { RolesGuard } from 'src/infra/guard/roles.guard';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -42,5 +49,13 @@ export class AuthController {
     const authHeader = req.headers.authorization;
 
     return this.authService.logout(authHeader);
+  }
+
+  @ValidateTokenDoc()
+  @UseGuards(RolesGuard)
+  @HttpCode(200)
+  @Post('validate-token')
+  async validateToken() {
+    return { valid: true };
   }
 }
